@@ -21,15 +21,58 @@ router.use(requireAuth);
  * Silakan tambahkan logic untuk menandai/mengurutkan ulang tugas yang
  * sisa waktunya < 24 jam di sini (atau di tempat lain sesuai rancangan Anda).
  */
+
+// helper function deadline
+function getDeadlineCategory(deadline, currentTime) {
+  const deadlineTime = new Date(deadline).getTime();
+  const currentTimeMs = currentTime.getTime();
+
+  if (deadlineTime < currentTimeMs) {
+    return "OVERDUE";
+  }
+
+  const remainingTime = deadlineTime - currentTimeMs;
+  const twentyFourHours = 24 * 60 * 60 * 1000;
+
+  if (remainingTime < twentyFourHours) {
+    return "DEADLINE";
+  }
+
+  return "NORMAL";
+}
+
 router.get("/", (req, res) => {
   const db = readDB();
+  const currentTime = new Date();
+
   const tasks = db.tasks
     .filter((t) => t.user_id === req.user.id)
     .map((t) => {
       const course = db.courses.find((c) => c.id === t.mata_kuliah_id);
-      return { ...t, mata_kuliah: course ? course.name : null };
+
+      return {
+        ...t,
+        mata_kuliah: course ? course.name : null,
+        deadline_category: getDeadlineCategory(t.deadline, currentTime)
+      };
     })
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    .sort((a, b) => {
+      const categoryOrder = {
+        DEADLINE: 0,
+        NORMAL: 1,
+        OVERDUE: 2
+      };
+
+      const categoryDifference =
+        categoryOrder[a.deadline_category] -
+        categoryOrder[b.deadline_category];
+
+      if (categoryDifference !== 0) {
+        return categoryDifference;
+      }
+
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
 
   res.json({ tasks });
 });
