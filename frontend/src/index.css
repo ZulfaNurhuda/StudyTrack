@@ -78,6 +78,17 @@ a {
   font-weight: 600;
 }
 
+
+.badge.deadline-warning {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.badge.overdue {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .badge.belum {
   background: #fef3c7;
   color: #92400e;

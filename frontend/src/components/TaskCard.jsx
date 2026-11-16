@@ -17,6 +17,27 @@ function formatDeadline(deadline) {
   });
 }
 
+function DeadlineMarker({ category }) {
+  if (category === "DEADLINE") {
+    return (
+      <span className="badge deadline-warning">
+        Mendekati Deadline
+      </span>
+    );
+  }
+
+  if (category === "OVERDUE") {
+    return (
+      <span className="badge overdue">
+        Overdue
+      </span>
+    );
+  }
+
+  return null;
+}
+
+
 /**
  * Card satu tugas pada halaman Daftar Tugas.
  *
@@ -40,15 +61,31 @@ export default function TaskCard({ task, onToggleStatus, onDelete }) {
         <div className="meta">Deadline: {formatDeadline(task.deadline)}</div>
         {task.deskripsi && <div className="meta">{task.deskripsi}</div>}
       </div>
+
+      <div style={{ marginTop: 8 }}>
+        <DeadlineMarker category={task.deadline_category} />
+      </div>
+
+
       <div style={{ textAlign: "right" }}>
         <span className={`badge ${task.status}`}>
           {task.status === "selesai" ? "Selesai" : "Belum"}
         </span>
+
         <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-          <button className="btn" onClick={() => onToggleStatus(task)}>
-            {task.status === "selesai" ? "Tandai Belum" : "Tandai Selesai"}
+          <button
+            className="btn"
+            onClick={() => onToggleStatus(task)}
+          >
+            {task.status === "selesai"
+              ? "Tandai Belum"
+              : "Tandai Selesai"}
           </button>
-          <button className="btn" onClick={() => onDelete(task.id)}>
+
+          <button
+            className="btn"
+            onClick={() => onDelete(task.id)}
+          >
             Hapus
           </button>
         </div>
